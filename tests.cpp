@@ -114,6 +114,54 @@ string test_find_min_base_case() {
   return "find_min_base_case passed!";
 }
 
+string test_delete_node_1() {
+  vector<Point> pts = {{1, 1}, {4, 4}, {6, 6}};
+  KDTree *kd = kd_init(pts, 0);
+  string level_order = "";
+  int height = tree_height(kd);
+  for (int i = 0; i < height; i++) {
+    level_order += print_level(kd, i);
+  }
+  string correct_level_order = "x:(4,4)y:(1,1)y:(6,6)";
+  if (level_order != correct_level_order)
+    return "FAIL: find_min_base_case constructed " + level_order +
+           " instead of " + correct_level_order;
+
+  kd = delete_node(kd, {4, 4});
+  level_order = "";
+  height = tree_height(kd);
+  for (int i = 0; i < height; i++) {
+    level_order += print_level(kd, i);
+  }
+  correct_level_order = "x:(6,6)y:(1,1)";
+  if (level_order != correct_level_order)
+    return "FAIL: find_min_base_case constructed " + level_order +
+           " instead of " + correct_level_order;
+
+  kd = delete_node(kd, {1, 1});
+  level_order = "";
+  height = tree_height(kd);
+  for (int i = 0; i < height; i++) {
+    level_order += print_level(kd, i);
+  }
+  correct_level_order = "x:(6,6)";
+  if (level_order != correct_level_order)
+    return "FAIL: find_min_base_case constructed " + level_order +
+           " instead of " + correct_level_order;
+  kd = delete_node(kd, {6, 6});
+  level_order = "";
+  height = tree_height(kd);
+  for (int i = 0; i < height; i++) {
+    level_order += print_level(kd, i);
+  }
+  correct_level_order = "";
+  if (level_order != correct_level_order)
+    return "FAIL: find_min_base_case constructed " + level_order +
+           " instead of " + correct_level_order;
+
+  return "delete_node_1 passed!";
+}
+
 int main() {
   string test1 = test_kd_init_base_case();
   cout << test1 << endl;
@@ -123,5 +171,8 @@ int main() {
 
   string test3 = test_find_min_base_case();
   cout << test3 << endl;
+
+  string test4 = test_delete_node_1();
+  cout << test4 << endl;
   return 0;
 }
