@@ -2,7 +2,6 @@
 #define KD_TREE_H
 
 #include <vector>
-using namespace std;
 
 typedef struct {
   int x;
@@ -28,7 +27,7 @@ public:
   }
 };
 
-KDTree *kd_init(vector<Point>, int);
+KDTree *kd_init(std::vector<Point>, int);
 bool sort_by_x(Point, Point);
 bool sort_by_y(Point, Point);
 KDTree *find_min(KDTree *, int, int);

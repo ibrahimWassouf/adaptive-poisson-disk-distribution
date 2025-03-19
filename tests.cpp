@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+using namespace std;
 /*
 bool sort_by_x(Point p1, Point p2) {
   if (p1.x != p2.x)
