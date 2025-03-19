@@ -1,6 +1,7 @@
 #include "kd-tree.h"
 #include <algorithm>
 #include <vector>
+
 bool sort_by_x(Point p1, Point p2) {
   if (p1.x != p2.x)
     return p1.x < p2.x;
@@ -80,4 +81,34 @@ KDTree *find_min(KDTree *root, int target_dim, int dim) {
   vector<KDTree *> v = {root, find_min(root->left, target_dim, next_dim),
                         find_min(root->right, target_dim, next_dim)};
   return min_kd(v, target_dim);
+}
+
+KDTree *delete_node(KDTree *kd, Point p) {
+  if (!kd)
+    return nullptr;
+  // cases where we found the point we want to delete
+  if (p.x == kd->root.x && p.y == kd->root.y) {
+    if (kd->right) {
+      KDTree *min_right = find_min(kd->right, kd->axis, (kd->axis + 1) % 2);
+      kd->root = min_right->root;
+      kd->right = delete_node(kd->right, min_right->root);
+      return kd;
+    } else if (kd->left) {
+      KDTree *min_left = find_min(kd->left, kd->axis, (kd->axis + 1) % 2);
+      kd->root = min_left->root;
+      kd->right = delete_node(kd->left, min_left->root);
+      return kd;
+    } else {
+      delete kd;
+      return nullptr;
+    }
+    // cases to search for point in left child
+  } else if ((kd->axis == 0 && kd->root.x > p.x) ||
+             (kd->axis == 1 && kd->root.y > p.y))
+    kd->left = delete_node(kd->left, p);
+  // cases to search for point in right child
+  else if ((kd->axis == 0 && kd->root.x <= p.x) ||
+           (kd->axis == 1 && kd->root.y <= p.y))
+    kd->right = delete_node(kd->right, p);
+  return kd;
 }
