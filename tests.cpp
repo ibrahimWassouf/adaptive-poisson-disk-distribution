@@ -1,4 +1,5 @@
 #include "kd-tree.h"
+#include "rec.h"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -163,6 +164,53 @@ string test_delete_node_1() {
   return "delete_node_1 passed!";
 }
 
+// tests when point is/not contained
+string test_contains_point_1() {
+  // Rec *r = new Rec({1, 1}, {8, 8});
+  Rec r({1, 1}, {8, 8});
+  Point p = {3, 3};
+  Point p2 = {9, 7};
+  bool t1 = contains_point(r, p);
+  bool t2 = contains_point(r, p2);
+  if (!t1)
+    return "FAIL point 3,3 should have been contained";
+  if (t2)
+    return "FAIL point 9,7 should NOT have been contained";
+  return "contains_point test passed!";
+}
+
+// test that cell is fully contained
+string test_contains_cell_1() {
+  Rec r({1, 1}, {8, 8});
+  // cell is contained
+  Rec c({4, 4}, {7, 7});
+  // cell is outside left bound
+  Rec c2({0, 2}, {4, 4});
+  // cell is outside bottom bound
+  Rec c3({2, 0}, {4, 4});
+  // cell is outside right bound
+  Rec c4({7, 4}, {9, 7});
+  // cell is outside top bound
+  Rec c5({6, 6}, {7, 9});
+
+  if (contains_cell(r, c2))
+    return "FAIL (1,1)(8,8) returned that it contains (0,2)(4,4)";
+
+  if (contains_cell(r, c3))
+    return "FAIL (1,1)(8,8) returned that it contains (2,0)(4,4)";
+
+  if (contains_cell(r, c4))
+    return "FAIL (1,1)(8,8) returned that it contains (7,4)(9,7)";
+
+  if (contains_cell(r, c5))
+    return "FAIL (1,1)(8,8) returned that it contains (6,6)(7,9)";
+
+  if (contains_cell(r, c))
+    return "contains_cell_1 test passed!";
+  else
+    return "FAIL (1,1)(8,8) returned that it did NOT contain (4,4)(7,7)";
+}
+
 int main() {
   string test1 = test_kd_init_base_case();
   cout << test1 << endl;
@@ -175,5 +223,11 @@ int main() {
 
   string test4 = test_delete_node_1();
   cout << test4 << endl;
+
+  string test5 = test_contains_point_1();
+  cout << test5 << endl;
+
+  string test6 = test_contains_cell_1();
+  cout << test6 << endl;
   return 0;
 }
