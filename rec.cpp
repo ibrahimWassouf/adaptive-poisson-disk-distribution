@@ -16,3 +16,10 @@ bool contains_cell(Rec &r, Rec &c) {
     return true;
   return false;
 }
+
+bool is_disjoint(Rec &r, Rec &c) {
+  if (r.top_right.x < c.bottom_left.x || r.top_right.y < c.bottom_left.y ||
+      r.bottom_left.x > c.top_right.x || r.bottom_left.y > c.top_right.y)
+    return true;
+  return false;
+}
