@@ -211,6 +211,43 @@ string test_contains_cell_1() {
     return "FAIL (1,1)(8,8) returned that it did NOT contain (4,4)(7,7)";
 }
 
+string test_is_disjoint() {
+  Rec r({1, 1}, {8, 8});
+  // cell is contained
+  Rec c({4, 4}, {7, 7});
+  // cell is outside left bound
+  Rec c2({0, 2}, {4, 4});
+  // cell is outside bottom bound
+  Rec c3({2, 0}, {4, 4});
+  // cell is outside right bound
+  Rec c4({7, 4}, {9, 7});
+  // cell is outside top bound
+  Rec c5({6, 6}, {7, 9});
+  // cell is disjoint to the left
+  Rec c6({-5, 0}, {0, 5});
+  // cell is disjoint to the right
+  Rec c7({9, 1}, {10, 9});
+
+  if (is_disjoint(r, c2))
+    return "FAIL (1,1)(8,8) returned that it is disjoint from (0,2)(4,4)";
+
+  if (is_disjoint(r, c3))
+    return "FAIL (1,1)(8,8) returned that it is disjoint from (2,0)(4,4)";
+
+  if (is_disjoint(r, c4))
+    return "FAIL (1,1)(8,8) returned that it is disjoint from (7,4)(9,7)";
+
+  if (is_disjoint(r, c5))
+    return "FAIL (1,1)(8,8) returned that it is disjoint from (6,6)(7,9)";
+
+  if (is_disjoint(r, c))
+    return "FAIL (1,1)(8,8) return that it is disjoint from (4,4)(7,7)";
+  if (is_disjoint(r, c6) && is_disjoint(r, c7))
+    return "is_disjoint test passed!";
+  else
+    return "FAIL (1,1)(8,8) returned that it is NOT from (-5,0)(0,5) or "
+           "(9,1)(10,9)";
+}
 int main() {
   string test1 = test_kd_init_base_case();
   cout << test1 << endl;
@@ -229,5 +266,8 @@ int main() {
 
   string test6 = test_contains_cell_1();
   cout << test6 << endl;
+
+  string test7 = test_is_disjoint();
+  cout << test7 << endl;
   return 0;
 }
