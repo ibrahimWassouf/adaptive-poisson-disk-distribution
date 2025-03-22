@@ -18,7 +18,7 @@ bool sort_by_y(Point p1, Point p2) {
 // Assumes pts parameter is a sorted array of input points
 // axis value of 0 means the x-axis, 1 means y-axis
 KDTree *kd_init(vector<Point> pts, int axis) {
-  KDTree *kd = new KDTree(axis);
+  KDTree *kd = new KDTree(axis, pts);
   if (axis == 0)
     sort(pts.begin(), pts.end(), sort_by_x);
   else

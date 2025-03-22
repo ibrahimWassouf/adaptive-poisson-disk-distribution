@@ -22,11 +22,13 @@ public:
   Point root;
   KDTree *left;
   KDTree *right;
-  KDTree(int ax) {
+  std::vector<Point> points;
+  KDTree(int ax, std::vector<Point> pts) {
     axis = ax;
     root = {-1, -1};
     left = nullptr;
     right = nullptr;
+    points = pts;
   }
 };
 
