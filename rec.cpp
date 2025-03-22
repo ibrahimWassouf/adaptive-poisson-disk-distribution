@@ -23,3 +23,22 @@ bool is_disjoint(Rec &r, Rec &c) {
     return true;
   return false;
 }
+
+Rec left_rec(Rec &r, int axis, Point &median) {
+  if (axis == 0) {
+    Rec left(r.bottom_left, {median.x, r.top_right.y});
+    return left;
+  }
+
+  Rec left(r.bottom_left, {r.top_right.x, median.y});
+  return left;
+}
+
+Rec right_rec(Rec &r, int axis, Point &median) {
+  if (axis == 0) {
+    Rec right({median.x, r.bottom_left.y}, r.top_right);
+    return right;
+  }
+  Rec right({r.bottom_left.x, median.y}, r.top_right);
+  return right;
+}
