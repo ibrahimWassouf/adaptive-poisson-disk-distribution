@@ -87,6 +87,15 @@ KDTree *find_min(KDTree *root, int target_dim, int dim) {
 KDTree *delete_node(KDTree *kd, Point p) {
   if (!kd)
     return nullptr;
+
+  // remove node to-be-deleted from list of points within current node's subtree
+  for (vector<Point>::iterator it = kd->points.begin(); it != kd->points.end();
+       it++) {
+    if (*it == p) {
+      kd->points.erase(it);
+      break;
+    }
+  }
   // cases where we found the point we want to delete
   if (p.x == kd->root.x && p.y == kd->root.y) {
     if (kd->right) {
