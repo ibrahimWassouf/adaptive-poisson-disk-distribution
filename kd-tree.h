@@ -3,10 +3,13 @@
 
 #include <vector>
 
-typedef struct {
+struct Point {
   int x;
   int y;
-} Point;
+
+  bool operator==(const Point &p) { return x == p.x && y == p.y; };
+  bool operator!=(const Point &p) { return x != p.x || y != p.y; };
+};
 
 typedef struct {
   int axis;

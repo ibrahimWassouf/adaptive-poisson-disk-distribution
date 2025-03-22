@@ -248,6 +248,41 @@ string test_is_disjoint() {
     return "FAIL (1,1)(8,8) returned that it is NOT from (-5,0)(0,5) or "
            "(9,1)(10,9)";
 }
+
+string test_left_rec() {
+  Rec r({0, 0}, {10, 10});
+  Point median = {5, 5};
+  Rec left_rec_x = left_rec(r, 0, median);
+  Rec left_rec_y = left_rec(r, 1, median);
+  if (left_rec_x.bottom_left != (Point){0, 0} ||
+      left_rec_x.top_right != (Point){5, 10})
+    return "FAIL left_rec split on x axis did not return rec with bottom_left "
+           "(0,0) and top_right (5,10)";
+  if (left_rec_y.bottom_left != (Point){0, 0} ||
+      left_rec_y.top_right != (Point){10, 5})
+    return "FAIL left_rec split on y axis did not return rec with bottom_left "
+           "(0,0) and top_right (10,5)";
+
+  return "left_rec test passed!";
+}
+
+string test_right_rec() {
+  Rec r({0, 0}, {10, 10});
+  Point median = {5, 5};
+  Rec right_rec_x = right_rec(r, 0, median);
+  Rec right_rec_y = right_rec(r, 1, median);
+  if (right_rec_x.bottom_left != (Point){5, 0} ||
+      right_rec_x.top_right != (Point){10, 10})
+    return "FAIL right_rec split on x axis did not return rec with bottom_left "
+           "(0,5) and top_right (10,10)";
+  if (right_rec_y.bottom_left != (Point){0, 5} ||
+      right_rec_y.top_right != (Point){10, 10})
+    return "FAIL right_rec split on y axis did not return rec with bottom_left "
+           "(0,5) and top_right (10,10)";
+
+  return "right_rec test passed!";
+}
+
 int main() {
   string test1 = test_kd_init_base_case();
   cout << test1 << endl;
@@ -269,5 +304,11 @@ int main() {
 
   string test7 = test_is_disjoint();
   cout << test7 << endl;
+
+  string test8 = test_left_rec();
+  cout << test8 << endl;
+
+  string test9 = test_right_rec();
+  cout << test9 << endl;
   return 0;
 }
