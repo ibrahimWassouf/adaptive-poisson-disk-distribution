@@ -1,6 +1,14 @@
 #ifndef REC_H
 #define REC_H
-#include "kd-tree.h"
+
+struct Point {
+  int x;
+  int y;
+
+  bool operator==(const Point &p) { return x == p.x && y == p.y; };
+  bool operator!=(const Point &p) { return x != p.x || y != p.y; };
+};
+
 class Rec {
 public:
   Point bottom_left;

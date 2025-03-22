@@ -1,15 +1,8 @@
 #ifndef KD_TREE_H
 #define KD_TREE_H
 
+#include "rec.h"
 #include <vector>
-
-struct Point {
-  int x;
-  int y;
-
-  bool operator==(const Point &p) { return x == p.x && y == p.y; };
-  bool operator!=(const Point &p) { return x != p.x || y != p.y; };
-};
 
 typedef struct {
   int axis;
@@ -37,4 +30,5 @@ bool sort_by_x(Point, Point);
 bool sort_by_y(Point, Point);
 KDTree *find_min(KDTree *, int, int);
 KDTree *delete_node(KDTree *, Point);
+void range_search(const Rec &, KDTree *, const Rec &);
 #endif
