@@ -1,18 +1,19 @@
 #include "kd-tree.h"
+#include "rec.h"
 #include <algorithm>
 #include <vector>
 
 using namespace std;
 bool sort_by_x(Point p1, Point p2) {
-  if (p1.x != p2.x)
-    return p1.x < p2.x;
-  return p1.y < p2.y;
+  if (p1.first != p2.first)
+    return p1.first < p2.first;
+  return p1.second < p2.second;
 }
 
 bool sort_by_y(Point p1, Point p2) {
-  if (p1.y != p2.y)
-    return p1.y < p2.y;
-  return p1.x < p2.x;
+  if (p1.second != p2.second)
+    return p1.second < p2.second;
+  return p1.first < p2.first;
 }
 
 // Assumes pts parameter is a sorted array of input points
@@ -55,11 +56,13 @@ KDTree *min_kd(vector<KDTree *> &v, int dim) {
   }
   // sort by either x or y value
   if (dim == 0) {
-    auto cmp = [](auto k1, auto k2) { return k1->root.x < k2->root.x; };
+    auto cmp = [](auto k1, auto k2) { return k1->root.first < k2->root.first; };
 
     sort(v.begin(), v.end(), cmp);
   } else {
-    auto cmp = [](auto k1, auto k2) { return k1->root.y < k2->root.y; };
+    auto cmp = [](auto k1, auto k2) {
+      return k1->root.second < k2->root.second;
+    };
     sort(v.begin(), v.end(), cmp);
   }
 
@@ -97,7 +100,7 @@ KDTree *delete_node(KDTree *kd, Point p) {
     }
   }
   // cases where we found the point we want to delete
-  if (p.x == kd->root.x && p.y == kd->root.y) {
+  if (p.first == kd->root.first && p.second == kd->root.second) {
     if (kd->right) {
       KDTree *min_right = find_min(kd->right, kd->axis, (kd->axis + 1) % 2);
       kd->root = min_right->root;
@@ -113,12 +116,32 @@ KDTree *delete_node(KDTree *kd, Point p) {
       return nullptr;
     }
     // cases to search for point in left child
-  } else if ((kd->axis == 0 && kd->root.x > p.x) ||
-             (kd->axis == 1 && kd->root.y > p.y))
+  } else if ((kd->axis == 0 && kd->root.first > p.first) ||
+             (kd->axis == 1 && kd->root.second > p.second))
     kd->left = delete_node(kd->left, p);
   // cases to search for point in right child
-  else if ((kd->axis == 0 && kd->root.x <= p.x) ||
-           (kd->axis == 1 && kd->root.y <= p.y))
+  else if ((kd->axis == 0 && kd->root.first <= p.first) ||
+           (kd->axis == 1 && kd->root.second <= p.second))
     kd->right = delete_node(kd->right, p);
   return kd;
+}
+
+void range_search(Rec &search_range, KDTree *node, Rec &kd_cell,
+                  vector<Point> &res) {
+  if (!node || is_disjoint(search_range, kd_cell))
+    return;
+
+  if (contains_cell(search_range, kd_cell)) {
+    for (auto x : node->points)
+      res.push_back(x);
+    return;
+  }
+
+  if (contains_point(search_range, node->root))
+    res.push_back(node->root);
+
+  Rec left = left_rec(kd_cell, node->axis, node->root);
+  Rec right = right_rec(kd_cell, node->axis, node->root);
+  range_search(search_range, node->left, left, res);
+  range_search(search_range, node->right, right, res);
 }

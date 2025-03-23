@@ -30,5 +30,5 @@ bool sort_by_x(Point, Point);
 bool sort_by_y(Point, Point);
 KDTree *find_min(KDTree *, int, int);
 KDTree *delete_node(KDTree *, Point);
-void range_search(const Rec &, KDTree *, const Rec &);
+void range_search(Rec &, KDTree *, Rec &, std::vector<Point> &);
 #endif
