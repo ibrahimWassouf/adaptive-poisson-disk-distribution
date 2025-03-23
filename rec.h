@@ -1,13 +1,8 @@
 #ifndef REC_H
 #define REC_H
+#include <utility>
 
-struct Point {
-  int x;
-  int y;
-
-  bool operator==(const Point &p) { return x == p.x && y == p.y; };
-  bool operator!=(const Point &p) { return x != p.x || y != p.y; };
-};
+typedef std::pair<int, int> Point;
 
 class Rec {
 public:
