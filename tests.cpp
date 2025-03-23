@@ -31,11 +31,34 @@ string print_level(KDTree *root, int level) {
     return "";
   if (level == 0) {
     string axis = root->axis == 0 ? "x" : "y";
-    return axis + ":(" + to_string(root->root.x) + "," +
-           to_string(root->root.y) + ")";
+    return axis + ":(" + to_string(root->root.first) + "," +
+           to_string(root->root.second) + ")";
   }
   return print_level(root->left, level - 1) +
          print_level(root->right, level - 1);
+}
+
+string vec_to_string(vector<Point> &pts) {
+  string res = "";
+  for (auto x : pts) {
+    res += to_string(x.first) + "," + to_string(x.second) + " ";
+  }
+  return res;
+}
+
+bool check_pts_equality(vector<Point> &p1, vector<Point> &p2) {
+  if (p1.size() != p2.size())
+    return false;
+
+  sort(p1.begin(), p1.end());
+  sort(p2.begin(), p2.end());
+  auto it = p1.begin();
+  auto it2 = p2.begin();
+  for (; it != p1.end(); it++, it2++) {
+    if (*it != *it2)
+      return false;
+  }
+  return true;
 }
 
 string test_kd_init_base_case() {
@@ -106,12 +129,12 @@ string test_find_min_base_case() {
            " instead of " + correct_level_order;
   KDTree *root_min_x = find_min(kd, 0, 0);
   KDTree *root_min_y = find_min(kd, 1, 0);
-  if (root_min_x->root.x != 1)
-    return "FAIL: find_min return x min of " + to_string(root_min_x->root.x) +
-           " instead of 1";
-  if (root_min_y->root.y != 2)
-    return "FAIL: find_min return y min of " + to_string(root_min_y->root.y) +
-           " instead of 2";
+  if (root_min_x->root.first != 1)
+    return "FAIL: find_min return x min of " +
+           to_string(root_min_x->root.first) + " instead of 1";
+  if (root_min_y->root.second != 2)
+    return "FAIL: find_min return y min of " +
+           to_string(root_min_y->root.second) + " instead of 2";
 
   return "find_min_base_case passed!";
 }
@@ -283,6 +306,55 @@ string test_right_rec() {
   return "right_rec test passed!";
 }
 
+string test_range_search_1() {
+  vector<Point> pts = {{1, 1}, {2, 2}, {3, 3}, {3, 5},  {4, 4}, {5, 3},
+                       {5, 5}, {5, 6}, {6, 5}, {6, 6},  {7, 3}, {7, 7},
+                       {8, 8}, {9, 5}, {9, 9}, {10, 10}};
+  KDTree *kd = kd_init(pts, 0);
+  Rec range({4, 4}, {7, 7});
+  Rec kd_cell({0, 0}, {10, 10});
+  vector<Point> res = {};
+  range_search(range, kd, kd_cell, res);
+  vector<Point> expected = {{4, 4}, {5, 5}, {5, 6}, {6, 5}, {6, 6}, {7, 7}};
+  sort(res.begin(), res.end());
+  if (!check_pts_equality(res, expected))
+    return "FAIL range_search over (4,4)(7,7) returned " + vec_to_string(res) +
+           " rather than " + vec_to_string(expected);
+  return "range_search_1 passed!";
+}
+
+string test_range_search_2() {
+  vector<Point> pts = {{1, 1}, {2, 2}, {3, 3}, {3, 5},  {4, 4}, {5, 3},
+                       {5, 5}, {5, 6}, {6, 5}, {6, 6},  {7, 3}, {7, 7},
+                       {8, 8}, {9, 5}, {9, 9}, {10, 10}};
+  KDTree *kd = kd_init(pts, 0);
+  Rec range({8, 0}, {10, 2});
+  Rec kd_cell({0, 0}, {10, 10});
+  vector<Point> res = {};
+  range_search(range, kd, kd_cell, res);
+  vector<Point> expected = {};
+  if (!check_pts_equality(res, expected))
+    return "FAIL range_search over (8,0)(10,2) returned " + vec_to_string(res) +
+           " rather than " + vec_to_string(expected);
+  return "range_search_2 passed!";
+}
+
+string test_range_search_3() {
+  vector<Point> pts = {{1, 1}, {2, 2}, {3, 3}, {3, 5},  {4, 4}, {5, 3},
+                       {5, 5}, {5, 6}, {6, 5}, {6, 6},  {7, 3}, {7, 7},
+                       {8, 8}, {9, 5}, {9, 9}, {10, 10}};
+  KDTree *kd = kd_init(pts, 0);
+  Rec range({7, 3}, {9, 5});
+  Rec kd_cell({0, 0}, {10, 10});
+  vector<Point> res = {};
+  range_search(range, kd, kd_cell, res);
+  vector<Point> expected = {{7, 3}, {9, 5}};
+  if (!check_pts_equality(res, expected))
+    return "FAIL range_search over (7,3)(9,5) returned " + vec_to_string(res) +
+           " rather than " + vec_to_string(expected);
+  return "range_search_3 passed!";
+}
+
 int main() {
   string test1 = test_kd_init_base_case();
   cout << test1 << endl;
@@ -310,5 +382,17 @@ int main() {
 
   string test9 = test_right_rec();
   cout << test9 << endl;
+
+  // range search test 1
+  string test10 = test_range_search_1();
+  cout << test10 << endl;
+
+  // range search test 2
+  string test11 = test_range_search_2();
+  cout << test11 << endl;
+
+  // range search test 3
+  string test12 = test_range_search_3();
+  cout << test12 << endl;
   return 0;
 }
