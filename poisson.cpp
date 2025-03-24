@@ -34,21 +34,36 @@ string print_level(KDTree *root, int level) {
 
 int main() {
 
+  const double M = 3000;
+  const double N = 1000;
+  const double ALPHA = 8;
+  const double GAMMA = 1.5;
+  const double BETA = 0.65;
+
+  const int DIM = 64;
+  const double AREA = DIM * DIM;
+  const double R_MAX = sqrt(AREA / (2.0 * sqrt(3.0) * N));
+  const double R_MIN = R_MAX * (1 - pow(N / M, GAMMA)) * BETA;
+
   // create rng
+
   random_device r;
   seed_seq seed{r(), r(), r(), r()};
   mt19937 e1;
   e1.seed(seed);
-  uniform_int_distribution<int> uniform_dist(0, 63);
-
-  const int M = 2000;
-  const int N = 50;
-
+  uniform_int_distribution<int> uniform_dist(0, DIM - 1);
   // create random samples
   vector<Point> samples;
   set<Point> uniq;
   while (uniq.size() < M) {
-    Point p = {uniform_dist(e1), uniform_dist(e1)};
+    int x = uniform_dist(e1);
+    int y = uniform_dist(e1);
+    Point p = {x, y};
+    /*
+    Point p = {floor((double)rand() / RAND_MAX * DIM),
+               floor((double)rand() / RAND_MAX * DIM)};
+     cout << "(" << p.first << "," << p.second << ") ";
+     */
     uniq.insert(p);
   }
 
@@ -57,26 +72,26 @@ int main() {
   }
 
   KDTree *kd = kd_init(samples, 0);
-
-  const double AREA = 64 * 64;
-  const double R_MAX = sqrt(AREA / (2.0 * sqrt(3.0) * N));
-  const double R_MIN = R_MAX * (1 - pow(N / M, 1.5)) * 0.65;
-
   vector<pair<double, Point>> heap;
 
-  Rec cell({0, 0}, {64, 64});
+  Rec cell({0, 0}, {DIM, DIM});
   for (auto p : samples) {
     vector<Point> within_range;
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    range_search(range, kd, cell, within_range);
+    // range_search(range, kd, cell, within_range);
+    for (Point s : samples) {
+      if (contains_point(range, s))
+        within_range.push_back(s);
+    }
     double sum_w = 0;
     for (auto s : within_range) {
       double dist = (p.first - s.first) * (p.first - s.first) +
                     (s.second - p.second) * (s.second - p.second);
       dist = min(sqrt(dist), 2 * R_MAX);
-      double w = pow(1 - (dist / (2 * R_MAX)), 7);
+      dist = dist > 2 * R_MIN ? dist : 2 * R_MIN;
+      double w = pow(1 - (dist / (2 * R_MAX)), ALPHA);
       sum_w += w;
     }
 
@@ -84,17 +99,19 @@ int main() {
     heap.push_back(heap_node);
   }
 
-  make_heap(heap.begin(), heap.end());
+  sort(heap.begin(), heap.end());
+
   /*
-    for (int i = 0; i < heap.size(); i++) {
-      auto wp = heap[i];
-      Point p = wp.second;
-      double weight = wp.first;
-      cout << "weight: " << weight << " ";
-      cout << "(" << p.first << "," << p.second << ") ";
-      cout << "index: " << i << endl;
-    }
+  for (int i = 0; i < heap.size(); i++) {
+    auto wp = heap[i];
+    Point p = wp.second;
+    double weight = wp.first;
+    cout << "weight: " << weight << " ";
+    cout << "(" << p.first << "," << p.second << ") ";
+    cout << "index: " << i << endl;
+  }
   */
+
   // store index of point in heap
   map<Point, int> dict;
   for (int i = 0; i < heap.size(); i++) {
@@ -102,52 +119,74 @@ int main() {
     dict[p] = i;
   }
 
+  set<Point> deleted;
   while (heap.size() > N) {
-    auto wp = heap.front();
+    auto wp = heap.back();
     Point p = wp.second;
+    deleted.insert(p);
+    delete_node(kd, p);
     vector<Point> within_range;
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    range_search(range, kd, cell, within_range);
+    // range_search(range, kd, cell, within_range);
+    for (Point s : samples) {
+      if (contains_point(range, s) && deleted.find(s) == deleted.end())
+        within_range.push_back(s);
+    }
     for (int i = 0; i < heap.size(); i++) {
       auto wp = heap[i];
       Point p = wp.second;
       double weight = wp.first;
-      cout << "weight: " << weight << " ";
-      cout << "(" << p.first << "," << p.second << ") ";
-      cout << "index: " << i << endl;
+
+      // cout << "weight: " << weight << " ";
+      // cout << "(" << p.first << "," << p.second << ") ";
+      // cout << "index: " << i << endl;
     }
+    /*
+    cout << "deleted: ";
+    for (auto x : deleted) {
+      cout << "(" << x.first << "," << x.second << ") ";
+    }
+    cout << endl;
     cout << "======================" << endl;
+    */
     for (auto s : within_range) {
+      /*
       cout << "looking into " << s.first << "," << s.second << endl;
+      if (deleted.find(s) != deleted.end()) {
+        cout << "deleted node found in kd" << endl;
+      }
+      */
       double dist = (s.first - p.first) * (s.first - p.first) +
                     (s.second - p.second) * (s.second - p.second);
       dist = min(sqrt(dist), 2 * R_MAX);
       dist = dist > 2 * R_MIN ? dist : 2 * R_MIN;
-      double w = pow(1 - (dist / (2 * R_MAX)), 7);
+      double w = pow(1 - (dist / (2 * R_MAX)), ALPHA);
       int ind = dict[s];
+
+      /*
       if (heap[ind].second != s) {
         cout << "GETTING INDEX WAS WRONG index: " << ind << " got "
              << heap[ind].second.first << "," << heap[ind].second.second
              << endl;
       }
+      */
       heap[ind].first -= w;
     }
 
-    pop_heap(heap.begin(), heap.end());
     heap.pop_back();
 
-    cout << endl;
-    make_heap(heap.begin(), heap.end());
-
+    // cout << endl;
+    sort(heap.begin(), heap.end());
+    dict[p] = -1;
     // update index of point in heap
-    for (int i = 0; i < heap.size(); i++) {
-      Point p = heap[i].second;
-      dict[p] = i;
+    for (int i = 0; i < heap.size(); ++i) {
+      Point e = heap[i].second;
+      dict[e] = i;
     }
-    delete_node(kd, p);
   }
+  cout << "TEST " << heap[-1].first << endl;
   /*
     cout << "HEAP IN END ==========" << endl;
     cout << heap.size() << endl;
@@ -322,26 +361,26 @@ int main() {
   // old code - end
   //====================================
 
-  vector<vector<int>> img(64, vector<int>(64, 0));
+  vector<vector<int>> img(DIM, vector<int>(DIM, 255));
   while (heap.size() > 0) {
     auto wp = heap.front();
     pop_heap(heap.begin(), heap.end());
     heap.pop_back();
 
     Point p = wp.second;
-    img[p.first][p.second] = 255;
+    img[p.first][p.second] = 0;
   }
 
-  unsigned char *data = (unsigned char *)malloc(64 * 64);
+  unsigned char *data = (unsigned char *)malloc(DIM * DIM);
   for (int i = 0; i < img.size(); i++) {
     for (int j = 0; j < img[0].size(); j++) {
-      data[i * 64 + j] = img[i][j];
+      data[i * DIM + j] = img[i][j];
       // cout << img[i][j] << " ";
     }
     // cout << endl;
   }
 
   string filename = "test.jpg";
-  stbi_write_jpg(filename.c_str(), 64, 64, 1, data, 100);
+  stbi_write_jpg(filename.c_str(), DIM, DIM, 1, data, 100);
   return 0;
 }
