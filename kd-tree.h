@@ -2,6 +2,7 @@
 #define KD_TREE_H
 
 #include "rec.h"
+#include <set>
 #include <vector>
 
 typedef struct {
@@ -28,7 +29,7 @@ public:
 KDTree *kd_init(std::vector<Point>, int);
 bool sort_by_x(Point, Point);
 bool sort_by_y(Point, Point);
-KDTree *find_min(KDTree *, int, int);
+KDTree *find_min(KDTree *, int);
 KDTree *delete_node(KDTree *, Point);
 void range_search(Rec &, KDTree *, Rec &, std::vector<Point> &);
 #endif

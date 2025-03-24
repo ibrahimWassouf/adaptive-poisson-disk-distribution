@@ -69,21 +69,18 @@ KDTree *min_kd(vector<KDTree *> &v, int dim) {
   return v[0];
 }
 
-KDTree *find_min(KDTree *root, int target_dim, int dim) {
+KDTree *find_min(KDTree *root, int target_dim) {
   if (!root)
     return nullptr;
 
-  int next_dim = (dim + 1) % 2;
-
   // recurse on left child only
-  if (target_dim == dim) {
-    return root->left == nullptr ? root
-                                 : find_min(root->left, target_dim, next_dim);
+  if (target_dim == root->axis) {
+    return root->left == nullptr ? root : find_min(root->left, target_dim);
   }
 
   // recurse on both children
-  vector<KDTree *> v = {root, find_min(root->left, target_dim, next_dim),
-                        find_min(root->right, target_dim, next_dim)};
+  vector<KDTree *> v = {root, find_min(root->left, target_dim),
+                        find_min(root->right, target_dim)};
   return min_kd(v, target_dim);
 }
 
@@ -91,29 +88,18 @@ KDTree *delete_node(KDTree *kd, Point p) {
   if (!kd)
     return nullptr;
 
-  // remove node to-be-deleted from list of points within current node's subtree
-  for (vector<Point>::iterator it = kd->points.begin(); it != kd->points.end();
-       it++) {
-    if (*it == p) {
-      kd->points.erase(it);
-      break;
-    }
-  }
   // cases where we found the point we want to delete
-  if (p.first == kd->root.first && p.second == kd->root.second) {
+  if (p == kd->root) {
     if (kd->right) {
-      KDTree *min_right = find_min(kd->right, kd->axis, (kd->axis + 1) % 2);
+      KDTree *min_right = find_min(kd->right, kd->axis);
       kd->root = min_right->root;
       kd->right = delete_node(kd->right, min_right->root);
-      return kd;
     } else if (kd->left) {
-      KDTree *min_left = find_min(kd->left, kd->axis, (kd->axis + 1) % 2);
+      KDTree *min_left = find_min(kd->left, kd->axis);
       kd->root = min_left->root;
       kd->right = delete_node(kd->left, min_left->root);
       kd->left = nullptr;
-      return kd;
     } else {
-      delete kd;
       kd = nullptr;
       return nullptr;
     }
@@ -122,25 +108,37 @@ KDTree *delete_node(KDTree *kd, Point p) {
              (kd->axis == 1 && kd->root.second > p.second))
     kd->left = delete_node(kd->left, p);
   // cases to search for point in right child
-  else if ((kd->axis == 0 && kd->root.first <= p.first) ||
-           (kd->axis == 1 && kd->root.second <= p.second))
+  else if ((kd->axis == 0 && kd->root.first < p.first) ||
+           (kd->axis == 1 && kd->root.second < p.second))
     kd->right = delete_node(kd->right, p);
+
+  // fix set of points in subtree
+
+  vector<Point> left_pts = kd->left ? kd->left->points : vector<Point>(0);
+  vector<Point> right_pts = kd->right ? kd->right->points : vector<Point>(0);
+  kd->points = {kd->root};
+  kd->points.insert(kd->points.end(), left_pts.begin(), left_pts.end());
+  kd->points.insert(kd->points.end(), right_pts.begin(), right_pts.end());
   return kd;
 }
 
 void range_search(Rec &search_range, KDTree *node, Rec &kd_cell,
                   vector<Point> &res) {
+
   if (!node || is_disjoint(search_range, kd_cell))
     return;
 
+  if (!node)
+    return;
   if (contains_cell(search_range, kd_cell)) {
     for (auto x : node->points)
       res.push_back(x);
     return;
   }
 
-  if (contains_point(search_range, node->root))
+  if (contains_point(search_range, node->root)) {
     res.push_back(node->root);
+  }
 
   Rec left = left_rec(kd_cell, node->axis, node->root);
   Rec right = right_rec(kd_cell, node->axis, node->root);
