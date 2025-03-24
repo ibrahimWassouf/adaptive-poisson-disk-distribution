@@ -35,7 +35,7 @@ string print_level(KDTree *root, int level) {
 int main() {
 
   const double M = 3000;
-  const double N = 1000;
+  const double N = 500;
   const double ALPHA = 8;
   const double GAMMA = 1.5;
   const double BETA = 0.65;
@@ -80,11 +80,13 @@ int main() {
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    // range_search(range, kd, cell, within_range);
+    range_search(range, kd, cell, within_range);
+    /*
     for (Point s : samples) {
       if (contains_point(range, s))
         within_range.push_back(s);
     }
+    */
     double sum_w = 0;
     for (auto s : within_range) {
       double dist = (p.first - s.first) * (p.first - s.first) +
@@ -125,15 +127,17 @@ int main() {
     Point p = wp.second;
     deleted.insert(p);
     delete_node(kd, p);
-    vector<Point> within_range;
+    vector<Point> within_range(0);
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    // range_search(range, kd, cell, within_range);
+    range_search(range, kd, cell, within_range);
+    /*
     for (Point s : samples) {
       if (contains_point(range, s) && deleted.find(s) == deleted.end())
         within_range.push_back(s);
     }
+    */
     for (int i = 0; i < heap.size(); i++) {
       auto wp = heap[i];
       Point p = wp.second;
@@ -149,22 +153,24 @@ int main() {
       cout << "(" << x.first << "," << x.second << ") ";
     }
     cout << endl;
-    cout << "======================" << endl;
     */
+    // cout << "======================" << endl;
     for (auto s : within_range) {
-      /*
-      cout << "looking into " << s.first << "," << s.second << endl;
+
+      // cout << "looking into " << s.first << "," << s.second << endl;
       if (deleted.find(s) != deleted.end()) {
-        cout << "deleted node found in kd" << endl;
+        continue;
+        // cout << "deleted node found in kd" << endl;
       }
-      */
+
       double dist = (s.first - p.first) * (s.first - p.first) +
                     (s.second - p.second) * (s.second - p.second);
       dist = min(sqrt(dist), 2 * R_MAX);
       dist = dist > 2 * R_MIN ? dist : 2 * R_MIN;
       double w = pow(1 - (dist / (2 * R_MAX)), ALPHA);
       int ind = dict[s];
-
+      if (ind < 0)
+        continue;
       /*
       if (heap[ind].second != s) {
         cout << "GETTING INDEX WAS WRONG index: " << ind << " got "
@@ -172,6 +178,7 @@ int main() {
              << endl;
       }
       */
+
       heap[ind].first -= w;
     }
 
