@@ -110,9 +110,11 @@ KDTree *delete_node(KDTree *kd, Point p) {
       KDTree *min_left = find_min(kd->left, kd->axis, (kd->axis + 1) % 2);
       kd->root = min_left->root;
       kd->right = delete_node(kd->left, min_left->root);
+      kd->left = nullptr;
       return kd;
     } else {
       delete kd;
+      kd = nullptr;
       return nullptr;
     }
     // cases to search for point in left child
