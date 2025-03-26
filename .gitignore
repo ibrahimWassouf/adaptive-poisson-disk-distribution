@@ -2,4 +2,11 @@ a.out
 .DS_Store
 kd-tree.o
 kdtree.pdf
-a.out.dSYM/*
+*.dSYM/**/*
+__pycache__/**/*
+*.jpg
+*.jpeg
+*.png
+*.tiff
+*.gch
+*.o
