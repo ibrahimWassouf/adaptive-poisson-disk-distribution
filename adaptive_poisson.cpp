@@ -1,3 +1,4 @@
+#include "index_pq.h"
 #include "kd-tree.h"
 #include "rec.h"
 #include <algorithm>
@@ -46,8 +47,8 @@ int main() {
   unsigned char *gr_char = stbi_load("gray_test.jpg", &x, &y, &n, 0);
   cout << "read file\n";
 
-  const double M = 18000;
-  const double N = 6000;
+  const double M = 30000;
+  const double N = 15159;
   const double ALPHA = 8;
   const double GAMMA = 1.5;
   const double BETA = 0.95;
@@ -109,7 +110,7 @@ int main() {
   }
 
   KDTree *kd = kd_init(samples, 0);
-  vector<pair<double, Point>> heap;
+  IndexPQ heap;
 
   Rec cell({0, 0}, {DIM, DIM});
   for (auto p : samples) {
@@ -151,10 +152,8 @@ int main() {
     // cout << "final weight: " << sum_w << endl;
 
     pair<double, Point> heap_node = {sum_w, p};
-    heap.push_back(heap_node);
+    heap.push(heap_node);
   }
-
-  sort(heap.begin(), heap.end());
 
   /*
   for (int i = 0; i < heap.size(); i++) {
@@ -167,17 +166,12 @@ int main() {
   }
   */
 
-  // store index of point in heap
-  map<Point, int> dict;
-  for (int i = 0; i < heap.size(); i++) {
-    Point p = heap[i].second;
-    dict[p] = i;
-  }
-
   set<Point> deleted;
   while (heap.size() > N) {
-    auto wp = heap.back();
+    auto wp = heap.pop();
     Point p = wp.second;
+    double sum_w = wp.first;
+    int p_key = heap.keys[p];
     deleted.insert(p);
     delete_node(kd, p);
     vector<Point> within_range(0);
@@ -191,6 +185,7 @@ int main() {
         within_range.push_back(s);
     }
     */
+    /*
     for (int i = 0; i < heap.size(); i++) {
       auto wp = heap[i];
       Point p = wp.second;
@@ -200,6 +195,7 @@ int main() {
       // cout << "(" << p.first << "," << p.second << ") ";
       // cout << "index: " << i << endl;
     }
+    */
     /*
     cout << "deleted: ";
     for (auto x : deleted) {
@@ -224,7 +220,7 @@ int main() {
       dist = dist > 2 * R_MIN ? dist : 2 * R_MIN;
       double apply_sparsing = dist == 2 * R_MIN ? 2 : 1;
       double w = pow(apply_sparsing - (dist / (2 * R_MAX)), ALPHA);
-      int ind = dict[s];
+      int ind = heap.keys[s];
       if (ind < 0)
         continue;
       /*
@@ -235,27 +231,18 @@ int main() {
       }
       */
 
-      heap[ind].first -= w;
+      heap.change(p_key, sum_w - w);
     }
-
-    heap.pop_back();
 
     // cout << endl;
-    sort(heap.begin(), heap.end());
-    dict[p] = -1;
+    // sort(heap.begin(), heap.end());
     // update index of point in heap
-    for (int i = 0; i < heap.size(); ++i) {
-      Point e = heap[i].second;
-      dict[e] = i;
-    }
   }
   cout << "TEST " << 0 << endl;
 
   vector<vector<int>> img(DIM, vector<int>(DIM, 255));
   while (heap.size() > 0) {
-    auto wp = heap.front();
-    pop_heap(heap.begin(), heap.end());
-    heap.pop_back();
+    auto wp = heap.pop();
 
     Point p = wp.second;
     img[p.first][p.second] = 0;
