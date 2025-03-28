@@ -16,13 +16,12 @@ public:
   Point root;
   KDTree *left;
   KDTree *right;
-  std::vector<Point> points;
+  std::set<Point> points;
   KDTree(int ax, std::vector<Point> pts) {
     axis = ax;
     root = {-1, -1};
     left = nullptr;
     right = nullptr;
-    points = pts;
   }
 };
 

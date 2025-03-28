@@ -1,8 +1,8 @@
 #include "kd-tree.h"
 #include "rec.h"
 #include <algorithm>
+#include <iostream>
 #include <vector>
-
 using namespace std;
 bool sort_by_x(Point p1, Point p2) {
   if (p1.first != p2.first)
@@ -29,9 +29,13 @@ KDTree *kd_init(vector<Point> pts, int axis) {
     return nullptr;
   if (pts.size() == 1) {
     kd->root = pts[0];
+    kd->axis = axis;
     return kd;
-  } else if (pts.size() == 2) {
+  }
+  if (pts.size() == 2) {
     kd->root = pts[0];
+    kd->axis = axis;
+    kd->points.insert(pts.begin(), pts.end());
     kd->right = kd_init({pts[1]}, (axis + 1) % 2);
     return kd;
   } else {
@@ -43,6 +47,7 @@ KDTree *kd_init(vector<Point> pts, int axis) {
     vector<Point> right_pts(pts.begin() + median + 1, pts.end());
     kd->left = kd_init(left_pts, (axis + 1) % 2);
     kd->right = kd_init(right_pts, (axis + 1) % 2);
+    kd->points.insert(pts.begin(), pts.end());
     return kd;
   }
 }
@@ -114,11 +119,16 @@ KDTree *delete_node(KDTree *kd, Point p) {
 
   // fix set of points in subtree
 
+  // kd->points.erase(find(kd->points.begin(), kd->points.end(), p));
+  /*
   vector<Point> left_pts = kd->left ? kd->left->points : vector<Point>(0);
   vector<Point> right_pts = kd->right ? kd->right->points : vector<Point>(0);
   kd->points = {kd->root};
   kd->points.insert(kd->points.end(), left_pts.begin(), left_pts.end());
   kd->points.insert(kd->points.end(), right_pts.begin(), right_pts.end());
+  */
+  if (kd->points.find(p) != kd->points.end())
+    kd->points.erase(kd->points.find(p));
   return kd;
 }
 
@@ -128,8 +138,6 @@ void range_search(Rec &search_range, KDTree *node, Rec &kd_cell,
   if (!node || is_disjoint(search_range, kd_cell))
     return;
 
-  if (!node)
-    return;
   if (contains_cell(search_range, kd_cell)) {
     for (auto x : node->points)
       res.push_back(x);
