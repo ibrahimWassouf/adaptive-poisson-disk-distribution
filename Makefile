@@ -1,5 +1,5 @@
 adaptive : adaptive_poisson.cpp rec.cpp kd-tree.cpp
-	g++ -std=c++20 rec.cpp kd-tree.cpp adaptive_poisson.cpp index_pq.cpp -o adaptive.o -g
+	g++ -std=c++20 rec.cpp kd-tree.cpp adaptive_poisson.cpp index_pq.cpp -o adaptive.o -g -lprofiler
 
 regular : poisson.cpp rec.cpp kd-tree.cpp
 	 g++ -std=c++20 rec.cpp kd-tree.cpp poisson.cpp -o poisson.o -g
