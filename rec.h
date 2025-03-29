@@ -1,9 +1,9 @@
 #ifndef REC_H
 #define REC_H
+#include "point.h"
 #include <utility>
 
-typedef std::pair<int, int> Point;
-
+// typedef std::pair<int, int> Point;
 class Rec {
 public:
   Point bottom_left;

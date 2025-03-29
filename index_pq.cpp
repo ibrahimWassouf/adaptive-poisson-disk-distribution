@@ -50,8 +50,8 @@ void IndexPQ::push(pair<double, Point> el) {
 
 pair<double, Point> IndexPQ::pop() {
   pair<double, Point> top = pq[0];
-  pair<int, int> p1 = top.second;
-  pair<int, int> p2 = pq[pq.size() - 1].second;
+  Point p1 = top.second;
+  Point p2 = pq[pq.size() - 1].second;
   exchange(0, pq.size() - 1, keys[p1], keys[p2]);
   // item with this key no longer in pq
   qp[keys[p1]] = -1;

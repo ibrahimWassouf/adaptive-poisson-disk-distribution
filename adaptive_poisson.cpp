@@ -28,8 +28,8 @@ int main() {
 
   unsigned char *gr_char = stbi_load("gray_test.jpg", &x, &y, &n, 0);
 
-  const double M = 30000;
-  const double N = 10000;
+  const double M = 100574;
+  const double N = 36858;
   const double ALPHA = 8;
   const double GAMMA = 1.5;
   const double BETA = 0.65;
@@ -47,6 +47,7 @@ int main() {
     }
   }
 
+  auto start = chrono::high_resolution_clock::now();
   // create rng
   random_device r;
   seed_seq seed{r(), r(), r(), r()};
@@ -59,8 +60,7 @@ int main() {
   while (uniq.size() < M) {
     int x = uniform_dist(e1);
     int y = uniform_dist(e1);
-    Point p = {x, y};
-
+    Point p{(double)x, (double)y};
     uniq.insert(p);
   }
 
@@ -73,7 +73,7 @@ int main() {
   IndexPQ heap;
 
   // vector<pair<double, Point>> heap;
-  Rec cell({0, 0}, {DIM, DIM});
+  Rec cell({0, 0}, {(double)DIM, (double)DIM});
   for (auto p : samples) {
     vector<Point> within_range;
     Rec range({p.first - R_MAX, p.second - R_MAX},
@@ -174,6 +174,9 @@ int main() {
     */
   }
 
+  auto stop = chrono::high_resolution_clock::now();
+  cout << chrono::duration_cast<chrono::milliseconds>(stop - start).count()
+       << endl;
   vector<vector<int>> img(DIM, vector<int>(DIM, 255));
 
   /*

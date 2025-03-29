@@ -1,8 +1,8 @@
 #include "rec.h"
 
 bool contains_point(Rec &r, Point &p) {
-  if ((r.bottom_left.first <= p.first && p.first <= r.top_right.first) &&
-      (r.bottom_left.second <= p.second && p.second <= r.top_right.second))
+  if (r.bottom_left.first <= p.first and p.first <= r.top_right.first and
+      r.bottom_left.second <= p.second and p.second <= r.top_right.second)
     return true;
   return false;
 }
@@ -19,7 +19,7 @@ bool contains_cell(Rec &r, Rec &c) {
 
 bool is_disjoint(Rec &r, Rec &c) {
   if ((r.top_right.first < c.bottom_left.first ||
-       r.top_right.second < c.bottom_left.second) &&
+       r.top_right.second < c.bottom_left.second) ||
       (r.bottom_left.first > c.top_right.first ||
        r.bottom_left.second > c.top_right.second))
     return true;
