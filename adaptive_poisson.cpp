@@ -16,20 +16,47 @@
 #include "stb_image_write.h"
 using namespace std;
 
-int main() {
+string file_from_path(string path) {
+  string file = "";
+  for (char c : path) {
+    if (c == '/') {
+      file = "";
+    } else
+      file += c;
+  }
+  return file;
+}
 
-  int x, y, n, ok;
+string remove_extension(string filename) {
+  string res = "";
+  for (char c : filename) {
+    if (c == '.')
+      break;
+    res += c;
+  }
+  return res;
+}
 
-  ok = stbi_info("gray_test.jpg", &x, &y, &n);
-  if (!ok) {
-    cout << "file format not supported\n";
+int main(int argc, char *argv[]) {
+
+  if (argc != 4) {
+    cout << "Please input filename, sample size (M), and subset sample size "
+            "(N) as input\n";
     return 1;
   }
 
-  unsigned char *gr_char = stbi_load("gray_test.jpg", &x, &y, &n, 0);
+  string image_path = argv[1];
+  int x, y, n, ok;
+  ok = stbi_info(image_path.c_str(), &x, &y, &n);
+  if (!ok) {
+    cout << "File: " << argv[1] << " file format not supported\n";
+    return 1;
+  }
 
-  const double M = 100574;
-  const double N = 36858;
+  unsigned char *gr_char = stbi_load(image_path.c_str(), &x, &y, &n, 0);
+
+  const double M = (double)trunc(atoi(argv[2]));
+  const double N = (double)trunc(atoi(argv[3]));
   const double ALPHA = 8;
   const double GAMMA = 1.5;
   const double BETA = 0.65;
@@ -175,8 +202,7 @@ int main() {
   }
 
   auto stop = chrono::high_resolution_clock::now();
-  cout << chrono::duration_cast<chrono::milliseconds>(stop - start).count()
-       << endl;
+  auto time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
   vector<vector<int>> img(DIM, vector<int>(DIM, 255));
 
   /*
@@ -189,8 +215,16 @@ int main() {
     img[p.first][p.second] = 0;
   }
   */
+
+  string filename = file_from_path(image_path);
+  filename = remove_extension(filename);
+  string result = filename + " " + to_string(M) + " " + to_string(N) + " " +
+                  to_string(time) + "\n";
+  // cout << result;
+  cout << filename << " " << M << " " << N << " " << time << endl;
+  string output_data = "./data/" + filename + "_" + argv[3] + ".txt";
   ofstream file;
-  file.open("data.txt");
+  file.open(output_data);
 
   for (auto wp : heap.pq) {
     Point p = wp.second;
@@ -198,6 +232,7 @@ int main() {
     file << p.first << " " << p.second << '\n';
   }
   file.close();
+
   unsigned char *data = (unsigned char *)malloc(DIM * DIM);
   for (int i = 0; i < img.size(); i++) {
     for (int j = 0; j < img[0].size(); j++) {
@@ -205,17 +240,8 @@ int main() {
     }
   }
 
-  unsigned char *gr_data = (unsigned char *)malloc(DIM * DIM);
-  for (int i = 0; i < img.size(); i++) {
-    for (int j = 0; j < img[0].size(); j++) {
-      gr_data[i * DIM + j] = gradient[i][j];
-    }
-  }
-
-  string filename = "adaptive_test.jpg";
-  string gr_name = "gradient.jpg";
+  string output_filename = "./output/" + filename + "_" + argv[3] + ".jpg";
   // stbi_write_jpg(gr_name.c_str(), DIM, DIM, 1, gradient, 100);
-  stbi_write_jpg(filename.c_str(), DIM, DIM, 1, data, 100);
-  stbi_write_jpg(gr_name.c_str(), DIM, DIM, 1, gr_data, 100);
+  stbi_write_jpg(output_filename.c_str(), DIM, DIM, 1, data, 100);
   return 0;
 }
