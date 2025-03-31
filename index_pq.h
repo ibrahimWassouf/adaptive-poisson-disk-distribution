@@ -1,11 +1,10 @@
 #ifndef INDEX_PQ_H
 #define INDEX_PQ_H
 
+#include "point.h"
 #include <map>
 #include <utility>
 #include <vector>
-
-typedef std::pair<int, int> Point;
 
 class IndexPQ {
 public:
