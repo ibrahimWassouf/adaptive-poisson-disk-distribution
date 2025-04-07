@@ -19,8 +19,8 @@ string print_level(KDTree *root, int level) {
     return "";
   if (level == 0) {
     string axis = root->axis == 0 ? "x" : "y";
-    return axis + ":(" + to_string(root->root.first) + "," +
-           to_string(root->root.second) + ")";
+    return axis + ":(" + to_string((int)root->root.first) + "," +
+           to_string((int)root->root.second) + ")";
   }
   return print_level(root->left, level - 1) +
          print_level(root->right, level - 1);
@@ -29,7 +29,7 @@ string print_level(KDTree *root, int level) {
 string vec_to_string(vector<Point> &pts) {
   string res = "";
   for (auto x : pts) {
-    res += to_string(x.first) + "," + to_string(x.second) + " ";
+    res += to_string((int)x.first) + "," + to_string((int)x.second) + " ";
   }
   return res;
 }

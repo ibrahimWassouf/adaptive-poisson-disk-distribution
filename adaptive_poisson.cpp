@@ -99,7 +99,6 @@ int main(int argc, char *argv[]) {
 
   IndexPQ heap;
 
-  // vector<pair<double, Point>> heap;
   Rec cell({0, 0}, {(double)DIM, (double)DIM});
   for (auto p : samples) {
     vector<Point> within_range;
