@@ -4,9 +4,5 @@ kd-tree.o
 kdtree.pdf
 *.dSYM/**/*
 __pycache__/**/*
-*.jpg
-*.jpeg
-*.png
-*.tiff
 *.gch
 *.o
