@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
       dist = min(dist, 2 * R_MAX);
       dist = dist > 2 * R_MIN ? dist : 2 * R_MIN;
 
-      // large distances lead to larger weights
+      // large distances lead to smaller weights
       int white_disc = dist == 2 * R_MIN ? 7 : 1;
       double w = pow(white_disc - (dist / (2 * R_MAX)), ALPHA - white_disc);
 
@@ -133,22 +133,8 @@ int main(int argc, char *argv[]) {
     heap.push(heap_node);
   }
 
-  /*
-  sort(heap.begin(), heap.end());
-  map<Point, int> dict;
-  for (int i = 0; i < heap.size(); i++) {
-    Point p = heap[i].second;
-    dict[p] = i;
-  }
-  */
   set<Point> deleted;
   while (heap.size() > N) {
-    /*
-    auto wp = heap.back();
-    Point p = wp.second;
-    deleted.insert(p);
-    delete_node(kd, p);
-    */
     auto wp = heap.pop();
     Point p = wp.second;
     delete_node(kd, p);
@@ -165,9 +151,6 @@ int main(int argc, char *argv[]) {
         continue;
       }
       int ind = heap.keys[s];
-      /*
-      int ind = dict[s];
-      */
       if (ind < 0)
         continue;
       double dist = (s.first - p.first) * (s.first - p.first) +
@@ -184,43 +167,17 @@ int main(int argc, char *argv[]) {
       double sum_w = heap.pq[s_pq_index].first;
       sum_w -= w;
       heap.change(s_key, sum_w);
-      // heap[ind].first -= w;
     }
-    /*
-    heap.pop_back();
-
-
-    // cout << endl;
-    sort(heap.begin(), heap.end());
-    dict[p] = -1;
-    // update index of point in heap
-    for (int i = 0; i < heap.size(); ++i) {
-      Point e = heap[i].second;
-      dict[e] = i;
-    }
-    */
   }
 
   auto stop = chrono::high_resolution_clock::now();
   auto time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
   vector<vector<int>> img(DIM, vector<int>(DIM, 255));
 
-  /*
-  while (heap.size() > 0) {
-    auto wp = heap.front();
-    pop_heap(heap.begin(), heap.end());
-    heap.pop_back();
-
-    Point p = wp.second;
-    img[p.first][p.second] = 0;
-  }
-  */
-
   string filename = file_from_path(image_path);
   filename = remove_extension(filename);
   string result = filename + " " + to_string(M) + " " + to_string(N) + " " +
                   to_string(time) + "\n";
-  // cout << result;
   cout << filename << " " << M << " " << N << " " << time << endl;
   string output_data = "./data/" + filename + "_" + argv[3] + ".txt";
   ofstream file;
@@ -241,7 +198,6 @@ int main(int argc, char *argv[]) {
   }
 
   string output_filename = "./output/" + filename + "_" + argv[3] + ".jpg";
-  // stbi_write_jpg(gr_name.c_str(), DIM, DIM, 1, gradient, 100);
   stbi_write_jpg(output_filename.c_str(), DIM, DIM, 1, data, 100);
   return 0;
 }

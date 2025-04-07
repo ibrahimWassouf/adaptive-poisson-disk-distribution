@@ -5,18 +5,6 @@
 #include <vector>
 
 using namespace std;
-/*
-bool sort_by_x(Point p1, Point p2) {
-  if (p1.x != p2.x)
-    return p1.x < p2.x;
-  return p1.y < p2.y;
-}
-bool sort_by_y(Point p1, Point p2) {
-  if (p1.y != p2.y)
-    return p1.y < p2.y;
-  return p1.x < p2.x;
-}
-*/
 
 int tree_height(KDTree *root) {
   if (!root)
@@ -77,25 +65,6 @@ string test_kd_init_base_case() {
     return "kd_init_base_case passed!";
   return "FAIL: kd_init_base_case returned " + level_order + " instead of " +
          correct_ans;
-  /*
-  if (kd->root.x != 2 && kd->root.y != 2)
-    return {false, "kd_init_base_case 1 FAILED: intializer constructed wrong "
-                   "root and used " +
-                       to_string(kd->root.x) + " " + to_string(kd->root.y) +
-                       " rather than 2,2"};
-
-  if (kd->left->root.x != 2 && kd->right->root.y != 2)
-    return {false, "kd_init_base_case 1 FAILED: intializer constructed wrong "
-                   "left child and used " +
-                       to_string(kd->left->root.x) + "," +
-                       to_string(kd->left->root.y) + " rather than 2,2"};
-
-  if (kd->right->root.x != 7 && kd->right->root.y != 8)
-    return {false, "kd_init_base_case 1 FAILED: intializer constructed wrong "
-                   "right child and used " +
-                       to_string(kd->right->root.x) + "," +
-                       to_string(kd->right->root.y) + " rather than 7,8"};
-  */
 }
 
 string test_kd_init_base_case_2() {
@@ -127,8 +96,8 @@ string test_find_min_base_case() {
   if (level_order != correct_level_order)
     return "FAIL: find_min_base_case constructed " + level_order +
            " instead of " + correct_level_order;
-  KDTree *root_min_x = find_min(kd, 0, 0);
-  KDTree *root_min_y = find_min(kd, 1, 0);
+  KDTree *root_min_x = find_min(kd, 0);
+  KDTree *root_min_y = find_min(kd, 1);
   if (root_min_x->root.first != 1)
     return "FAIL: find_min return x min of " +
            to_string(root_min_x->root.first) + " instead of 1";
@@ -268,7 +237,8 @@ string test_is_disjoint() {
   if (is_disjoint(r, c6) && is_disjoint(r, c7))
     return "is_disjoint test passed!";
   else
-    return "FAIL (1,1)(8,8) returned that it is NOT from (-5,0)(0,5) or "
+    return "FAIL (1,1)(8,8) returned that it is NOT disjoint from (-5,0)(0,5) "
+           "or "
            "(9,1)(10,9)";
 }
 

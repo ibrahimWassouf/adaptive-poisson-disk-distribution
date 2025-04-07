@@ -3,7 +3,6 @@
 #include "point.h"
 #include <utility>
 
-// typedef std::pair<int, int> Point;
 class Rec {
 public:
   Point bottom_left;
