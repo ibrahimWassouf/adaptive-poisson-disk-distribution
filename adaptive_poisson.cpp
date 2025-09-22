@@ -105,10 +105,14 @@ int main(int argc, char *argv[]) {
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    for (Point x : samples) {
-      if (contains_point(range, x))
+    range_search(R_MAX, p, range, kd, cell, within_range);
+    /*
+    for (auto x : samples){
+      if (contains_point(R_MAX,p ,x))
         within_range.push_back(x);
     }
+    */
+    // cout << within_range.size() << '\n';
     double sum_w = 0;
     for (auto s : within_range) {
       double dist = (p.first - s.first) * (p.first - s.first) +
@@ -143,8 +147,13 @@ int main(int argc, char *argv[]) {
     Rec range({p.first - R_MAX, p.second - R_MAX},
               {p.first + R_MAX, p.second + R_MAX});
 
-    range_search(range, kd, cell, within_range);
-
+    range_search(R_MAX, p, range, kd, cell, within_range);
+    /*
+    for (auto x : samples){
+      if (contains_point(R_MAX,p ,x))
+        within_range.push_back(x);
+    }
+    */
     for (auto s : within_range) {
       if (deleted.find(s) != deleted.end()) {
         continue;

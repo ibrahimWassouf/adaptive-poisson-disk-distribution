@@ -132,24 +132,25 @@ KDTree *delete_node(KDTree *kd, Point p) {
   return kd;
 }
 
-void range_search(Rec &search_range, KDTree *node, Rec &kd_cell,
-                  vector<Point> &res) {
+void range_search(double radius, Point &center, Rec &search_range, KDTree *node,
+                  Rec &kd_cell, vector<Point> &res) {
 
   if (!node || is_disjoint(search_range, kd_cell))
     return;
-
+  /*
   if (contains_cell(search_range, kd_cell)) {
     for (auto x : node->points)
       res.push_back(x);
     return;
   }
+  */
 
-  if (contains_point(search_range, node->root)) {
+  if (contains_point(radius, center, node->root)) {
     res.push_back(node->root);
   }
 
   Rec left = left_rec(kd_cell, node->axis, node->root);
   Rec right = right_rec(kd_cell, node->axis, node->root);
-  range_search(search_range, node->left, left, res);
-  range_search(search_range, node->right, right, res);
+  range_search(radius,center, search_range, node->left, left, res);
+  range_search(radius,center,  search_range, node->right, right, res);
 }

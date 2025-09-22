@@ -1,10 +1,13 @@
 #include "rec.h"
-
-bool contains_point(Rec &r, Point &p) {
-  if (r.bottom_left.first <= p.first and p.first <= r.top_right.first and
-      r.bottom_left.second <= p.second and p.second <= r.top_right.second)
-    return true;
-  return false;
+#include <iostream>
+bool contains_point(double radius, Point &c, Point &p) {
+  double a = (p.first - c.first)*(p.first - c.first);
+  double b = (p.second - c.second)*(p.second - c.second);  
+  double dist = a + b;
+                
+    
+  //std::cout << a << " " << b << "\n"; 
+  return dist <= radius*radius;
 }
 
 bool contains_cell(Rec &r, Rec &c) {
