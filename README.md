@@ -3,8 +3,7 @@ Yuksel on images provided by Xiaohan Zhao. References below.
 
 | Original Image | Resulting Image |
 | -------------- | --------------- |
-| ![original image](./images/Banshan_71.jpg) | ![result
-image](./output_example.jpg) |
+| ![original image](./images/Banshan_71.jpg) | ![result image](./output_example.jpg) |
 
 ## References
 
